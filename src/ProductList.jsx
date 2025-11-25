@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addItem } from './CartSlice';
 import CartItem from './CartItem';
 import './ProductList.css';
@@ -10,6 +11,14 @@ function ProductList({ onHomeClick }) {
     const [addedToCart, setAddedToCart] = useState({});
     
     const dispatch = useDispatch();
+    
+    // Access cart items from Redux store
+    const cartItems = useSelector(state => state.cart.items);
+    
+    // Calculate total quantity of items in cart
+    const calculateTotalQuantity = () => {
+        return cartItems ? cartItems.reduce((total, item) => total + item.quantity, 0) : 0;
+    };
 
     const plantsArray = [
         {
@@ -243,11 +252,13 @@ function ProductList({ onHomeClick }) {
     };
 
     const handleAddToCart = (product) => {
-        dispatch(addItem(product)); // Dispatch the action to add the product to the cart
+        // Dispatch addItem action to add product to Redux store
+        dispatch(addItem(product));
         
+        // Update local state to mark product as added
         setAddedToCart((prevState) => ({
             ...prevState,
-            [product.name]: true, // Mark this product as added to cart
+            [product.name]: true,
         }));
     };
 
@@ -292,7 +303,7 @@ function ProductList({ onHomeClick }) {
                             Plants
                         </a>
                     </div>
-                    <div> 
+                    <div style={{ position: 'relative' }}> 
                         <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
                             <h1 className='cart'>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68">
@@ -301,6 +312,21 @@ function ProductList({ onHomeClick }) {
                                     <circle cx="184" cy="216" r="12"></circle>
                                     <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" id="mainIconPathAttribute"></path>
                                 </svg>
+                                {calculateTotalQuantity() > 0 && (
+                                    <span style={{
+                                        position: 'absolute',
+                                        top: '10px',
+                                        right: '10px',
+                                        backgroundColor: 'red',
+                                        color: 'white',
+                                        borderRadius: '50%',
+                                        padding: '5px 10px',
+                                        fontSize: '16px',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        {calculateTotalQuantity()}
+                                    </span>
+                                )}
                             </h1>
                         </a>
                     </div>
